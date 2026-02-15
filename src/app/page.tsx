@@ -20,6 +20,32 @@ import {
   Loader2
 } from 'lucide-react';
 
+const EXAMPLES = {
+  buggy: {
+    lang: 'javascript',
+    code: `async function fetchUserData(userId) {
+  const response = await fetch('/api/users/' + userId);
+  const data = await response.json();
+  return data.user.name;
+}`
+  },
+  complex: {
+    lang: 'python',
+    code: `def fibonacci(n):
+    if n <= 1:
+        return n
+    return fibonacci(n-1) + fibonacci(n-2)
+
+print([fibonacci(i) for i in range(10)])`
+  },
+  security: {
+    lang: 'sql',
+    code: `SELECT * FROM users
+WHERE username = '$username'
+AND password = '$password';`
+  }
+};
+
 export default function Home() {
   const [code, setCode] = useState('');
   const [language, setLanguage] = useState('typescript');
@@ -56,19 +82,13 @@ export default function Home() {
       const decoder = new TextDecoder();
 
       if (reader) {
+        let buffer = '';
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
 
-          const chunk = decoder.decode(value);
-          const lines = chunk.split('\n');
-
-          for (const line of lines) {
-            if (line.startsWith('0:')) {
-              const text = line.slice(2).replace(/^"(.*)"$/, '$1');
-              setAnalysis((prev) => prev + text);
-            }
-          }
+          buffer += decoder.decode(value, { stream: true });
+          setAnalysis(buffer);
         }
       }
     } catch (error) {
@@ -126,6 +146,42 @@ export default function Home() {
                   placeholder="typescript, python, java..."
                   className="bg-slate-800 border-slate-700 text-white"
                 />
+              </div>
+
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-slate-700 bg-slate-800 text-white hover:bg-slate-700"
+                  onClick={() => {
+                    setCode(EXAMPLES.buggy.code);
+                    setLanguage(EXAMPLES.buggy.lang);
+                  }}
+                >
+                  Buggy Code
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-slate-700 bg-slate-800 text-white hover:bg-slate-700"
+                  onClick={() => {
+                    setCode(EXAMPLES.complex.code);
+                    setLanguage(EXAMPLES.complex.lang);
+                  }}
+                >
+                  Complex Logic
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-slate-700 bg-slate-800 text-white hover:bg-slate-700"
+                  onClick={() => {
+                    setCode(EXAMPLES.security.code);
+                    setLanguage(EXAMPLES.security.lang);
+                  }}
+                >
+                  Security Issue
+                </Button>
               </div>
 
               <div>

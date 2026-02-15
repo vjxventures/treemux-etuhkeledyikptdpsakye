@@ -1,0 +1,3 @@
+# DebateAI Arena - Elevator Pitch
+
+DebateAI Arena makes AI capabilities visible and engaging by orchestrating live debates between Claude 3.5 Sonnet and GPT-4o on any topic you choose. Watch arguments stream in real-time as each model takes a side and battles it out with logic, evidence, and persuasion. Unlike typical chatbots, this creates a compelling spectator experience where you can compare reasoning styles, evaluate arguments, and vote for the winner - turning abstract AI capabilities into entertaining, educational content that helps people understand how different models think and argue.

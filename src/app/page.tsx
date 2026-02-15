@@ -1,65 +1,145 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { DebateArena } from "@/components/debate-arena";
+
+const EXAMPLE_TOPICS = [
+  "AI will create more jobs than it destroys",
+  "Remote work is better than office work",
+  "Social media does more harm than good",
+  "Universal Basic Income should be implemented globally",
+  "Space exploration should be prioritized over ocean exploration",
+];
 
 export default function Home() {
+  const [topic, setTopic] = useState("");
+  const [debating, setDebating] = useState(false);
+  const [activeDebate, setActiveDebate] = useState<string | null>(null);
+
+  const startDebate = () => {
+    if (topic.trim()) {
+      setActiveDebate(topic);
+      setDebating(true);
+    }
+  };
+
+  const resetDebate = () => {
+    setDebating(false);
+    setActiveDebate(null);
+    setTopic("");
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      {!debating ? (
+        <div className="container mx-auto px-4 py-16 max-w-4xl">
+          <div className="text-center mb-12">
+            <h1 className="text-6xl font-bold text-white mb-4 tracking-tight">
+              DebateAI Arena
+            </h1>
+            <p className="text-xl text-purple-200 mb-2">
+              Watch AI models battle it out in real-time debates
+            </p>
+            <div className="flex items-center justify-center gap-2 mt-4">
+              <Badge variant="outline" className="bg-blue-500/20 text-blue-200 border-blue-400">
+                Claude 3.5 Sonnet
+              </Badge>
+              <span className="text-purple-300">vs</span>
+              <Badge variant="outline" className="bg-green-500/20 text-green-200 border-green-400">
+                GPT-4o
+              </Badge>
+            </div>
+          </div>
+
+          <Card className="bg-white/10 backdrop-blur-lg border-white/20 shadow-2xl">
+            <CardHeader>
+              <CardTitle className="text-2xl text-white">Start a Debate</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-sm text-purple-200 font-medium">
+                  Enter a debate topic
+                </label>
+                <div className="flex gap-2">
+                  <Input
+                    type="text"
+                    placeholder="e.g., AI will replace most jobs by 2030"
+                    value={topic}
+                    onChange={(e) => setTopic(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && startDebate()}
+                    className="bg-white/10 border-white/20 text-white placeholder:text-purple-300/50 text-lg"
+                  />
+                  <Button
+                    onClick={startDebate}
+                    disabled={!topic.trim()}
+                    size="lg"
+                    className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold px-8"
+                  >
+                    Start Debate
+                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <p className="text-sm text-purple-200 font-medium">
+                  Or try one of these topics:
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {EXAMPLE_TOPICS.map((exampleTopic) => (
+                    <Button
+                      key={exampleTopic}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setTopic(exampleTopic)}
+                      className="bg-white/5 hover:bg-white/20 text-purple-100 border-white/20 hover:border-white/40"
+                    >
+                      {exampleTopic}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="mt-12 text-center">
+            <h2 className="text-2xl font-bold text-white mb-4">How It Works</h2>
+            <div className="grid md:grid-cols-3 gap-6 text-left">
+              <Card className="bg-white/10 backdrop-blur-lg border-white/20">
+                <CardHeader>
+                  <CardTitle className="text-lg text-purple-200">1. Choose Topic</CardTitle>
+                </CardHeader>
+                <CardContent className="text-purple-100">
+                  Enter any debate topic or select from examples
+                </CardContent>
+              </Card>
+              <Card className="bg-white/10 backdrop-blur-lg border-white/20">
+                <CardHeader>
+                  <CardTitle className="text-lg text-purple-200">2. Watch Live</CardTitle>
+                </CardHeader>
+                <CardContent className="text-purple-100">
+                  AI models stream arguments in real-time
+                </CardContent>
+              </Card>
+              <Card className="bg-white/10 backdrop-blur-lg border-white/20">
+                <CardHeader>
+                  <CardTitle className="text-lg text-purple-200">3. Vote Winner</CardTitle>
+                </CardHeader>
+                <CardContent className="text-purple-100">
+                  Decide which AI made the best argument
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      ) : (
+        <DebateArena topic={activeDebate!} onReset={resetDebate} />
+      )}
     </div>
   );
 }

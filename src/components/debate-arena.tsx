@@ -192,7 +192,7 @@ export function DebateArena({ topic, onReset }: DebateArenaProps) {
                 {messages.map((message, idx) => (
                   <div
                     key={idx}
-                    className={`p-4 rounded-lg ${
+                    className={`p-4 rounded-lg animate-fade-in ${
                       message.role === "claude"
                         ? "bg-blue-500/20 border border-blue-400/50 ml-0 mr-12"
                         : "bg-green-500/20 border border-green-400/50 mr-0 ml-12"

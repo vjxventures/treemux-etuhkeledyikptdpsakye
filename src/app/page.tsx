@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -17,7 +19,9 @@ import {
   Camera,
   AlertCircle,
   CheckCircle2,
-  Loader2
+  Loader2,
+  Copy,
+  Check
 } from 'lucide-react';
 
 const EXAMPLES = {
@@ -53,6 +57,7 @@ export default function Home() {
   const [mode, setMode] = useState<'suggest' | 'explain'>('suggest');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState('');
+  const [copied, setCopied] = useState(false);
 
   const handleScreenshot = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -265,51 +270,92 @@ export default function Home() {
               <h2 className="text-xl font-semibold text-white">
                 {mode === 'suggest' ? 'AI Suggestions' : 'Code Explanation'}
               </h2>
-              {isAnalyzing && (
-                <Badge className="ml-auto bg-blue-600">
-                  <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-                  Analyzing
-                </Badge>
-              )}
+              <div className="ml-auto flex gap-2">
+                {isAnalyzing && (
+                  <Badge className="bg-blue-600">
+                    <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                    Analyzing
+                  </Badge>
+                )}
+                {analysis && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 text-slate-400 hover:text-white"
+                    onClick={() => {
+                      navigator.clipboard.writeText(analysis);
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 2000);
+                    }}
+                  >
+                    {copied ? (
+                      <>
+                        <Check className="w-3 h-3 mr-1" />
+                        Copied
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3 h-3 mr-1" />
+                        Copy
+                      </>
+                    )}
+                  </Button>
+                )}
+              </div>
             </div>
 
             <ScrollArea className="h-[500px]">
               {analysis ? (
-                <div className="prose prose-invert prose-sm max-w-none">
-                  <div className="text-slate-300 whitespace-pre-wrap leading-relaxed">
-                    {analysis.split('\n').map((line, i) => {
-                      if (line.startsWith('# ')) {
-                        return (
-                          <h3 key={i} className="text-lg font-bold text-white mt-4 mb-2">
-                            {line.slice(2)}
-                          </h3>
+                <div className="prose prose-invert prose-sm max-w-none text-slate-300 leading-relaxed">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      h1: ({ node, ...props }) => (
+                        <h1 className="text-xl font-bold text-white mt-6 mb-3" {...props} />
+                      ),
+                      h2: ({ node, ...props }) => (
+                        <h2 className="text-lg font-semibold text-blue-400 mt-4 mb-2" {...props} />
+                      ),
+                      h3: ({ node, ...props }) => (
+                        <h3 className="text-md font-medium text-purple-400 mt-3 mb-2" {...props} />
+                      ),
+                      p: ({ node, ...props }) => (
+                        <p className="mb-3 text-slate-300" {...props} />
+                      ),
+                      ul: ({ node, ...props }) => (
+                        <ul className="space-y-2 mb-4" {...props} />
+                      ),
+                      li: ({ node, ...props }) => (
+                        <li className="flex gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-green-400 mt-1 flex-shrink-0" />
+                          <span {...props} />
+                        </li>
+                      ),
+                      code: ({ node, className, children, ...props }: any) => {
+                        const isInline = !className;
+                        return isInline ? (
+                          <code
+                            className="bg-slate-800 text-blue-300 px-1.5 py-0.5 rounded text-sm"
+                            {...props}
+                          >
+                            {children}
+                          </code>
+                        ) : (
+                          <code
+                            className="block bg-slate-800 text-slate-200 p-3 rounded-lg overflow-x-auto text-sm"
+                            {...props}
+                          >
+                            {children}
+                          </code>
                         );
-                      }
-                      if (line.startsWith('## ')) {
-                        return (
-                          <h4 key={i} className="text-md font-semibold text-blue-400 mt-3 mb-2">
-                            {line.slice(3)}
-                          </h4>
-                        );
-                      }
-                      if (line.startsWith('- ')) {
-                        return (
-                          <div key={i} className="flex gap-2 mb-2">
-                            <CheckCircle2 className="w-4 h-4 text-green-400 mt-1 flex-shrink-0" />
-                            <span>{line.slice(2)}</span>
-                          </div>
-                        );
-                      }
-                      if (line.startsWith('**') && line.endsWith('**')) {
-                        return (
-                          <p key={i} className="font-semibold text-purple-400 mt-2">
-                            {line.slice(2, -2)}
-                          </p>
-                        );
-                      }
-                      return line ? <p key={i} className="mb-2">{line}</p> : <br key={i} />;
-                    })}
-                  </div>
+                      },
+                      strong: ({ node, ...props }) => (
+                        <strong className="font-semibold text-white" {...props} />
+                      ),
+                    }}
+                  >
+                    {analysis}
+                  </ReactMarkdown>
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center h-full text-center py-12">
